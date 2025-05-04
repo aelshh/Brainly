@@ -1,11 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { z } from "zod";
-import { contentModel, userModel } from "./db";
+import { string, z } from "zod";
+import { contentModel, linkModel, userModel } from "./db";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import { preProcessFile } from "typescript";
 import { userAuthorization } from "./Middleware";
+import { hash } from "crypto";
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
@@ -158,9 +159,72 @@ app.delete("/api/v1/content", userAuthorization, async (req, res) => {
   }
 });
 
-app.get("/api/v1/brain/share", (req, res) => {
+app.post("/api/v1/brain/share", userAuthorization, async (req, res) => {
+  const isShare: boolean = req.body.share;
+  if (isShare) {
+    const isLinkGenerated = await linkModel.findOne({
+      userId: req.userId,
+    });
 
+    if (isLinkGenerated) {
+      const hash = isLinkGenerated.hash;
+      res.json({
+        hash,
+      });
+      return;
+    }
+
+    const hash: string = crypto.randomUUID();
+    await linkModel.create({
+      hash: hash,
+      userId: req.userId,
+    });
+    res.json({
+      hash,
+    });
+  } else {
+    await linkModel.deleteOne({
+      userId: req.userId,
+    });
+  }
+
+  res.json({
+    message: "Updated the shareLink status",
+  });
 });
-app.post("/api/v1/brain/:shareLink", (req, res) => {});
+app.get("/api/v1/brain/:shareLink", async (req, res) => {
+  const hash: string = req.params.shareLink;
+
+  const userLink = await linkModel.findOne({
+    hash: hash,
+  });
+
+  if (userLink) {
+    const content = await contentModel.find({
+      userId: userLink.userId,
+    });
+
+    const user = await userModel.findOne({
+      _id: userLink.userId,
+    });
+
+    if (!user) {
+      res.json({
+        message: "No user found ideally it should not happen",
+      });
+    }
+
+    const username = user?.username;
+
+    res.json({
+      username,
+      content,
+    });
+  } else {
+    res.json({
+      message: "Link is not valid",
+    });
+  }
+});
 
 app.listen(3000);

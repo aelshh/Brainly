@@ -1,4 +1,4 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose, { model, Schema, SchemaType } from "mongoose";
 import "dotenv/config";
 import { string } from "zod";
 
@@ -16,6 +16,16 @@ const contentSchema = new Schema({
   userId: { type: mongoose.Types.ObjectId, ref: "Users" },
 });
 
-export const contentModel = model("Contents", contentSchema);
+const linkSchema = new Schema({
+  hash: String,
+  userId: {
+    type: Schema.Types.ObjectId,
+    require: true,
+    ref: "Users",
+    unique: true,
+  },
+});
 
+export const contentModel = model("Contents", contentSchema);
+export const linkModel = model("Link", linkSchema);
 export const userModel = model("Users", userSchema);

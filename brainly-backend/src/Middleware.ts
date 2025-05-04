@@ -10,12 +10,16 @@ export const userAuthorization = (
   next: NextFunction
 ) => {
   const token = req.headers["authorization"];
-  const decoded = jwt.verify(token as string, JWT_SECRET) as { userId: string };
-  if (decoded) {
-    req.userId = decoded.userId;
-    next();
-  } else {
-    res.status(403).json({
+  try {
+    const decoded = jwt.verify(token as string, JWT_SECRET) as {
+      userId: string;
+    };
+    if (decoded) {
+      req.userId = decoded.userId;
+      next();
+    }
+  } catch (e) {
+    res.json({
       message: "You are not signed In",
     });
   }

@@ -1,43 +1,39 @@
 import { ReactElement } from "react";
 
-type variantType = "Primary" | "Secondary";
-
-type sizeType = {
-  sm: string;
-  md: string;
-  lg: string;
-};
-
-interface ButtonProps {
-  variant: variantType;
-  size: "sm" | "md" | "lg";
+interface PropTypes {
+  variant: "Primary" | "Secondary";
   text: string;
+  onClick?: () => void;
+  size?: "sm" | "md" | "lg";
   startIcon?: ReactElement;
-  endIcon?: ReactElement;
-  onClick: () => void;
 }
 
-const variantStyles = {
-  Primary: "bg-purple-600 text-white",
-  Secondary: "bg-purple-300 text-purple-500",
+const variantClass = {
+  Primary: "bg-purple-600 text-white hover:bg-purple-300 hover:text-purple-500",
+  Secondary:
+    "bg-purple-300 text-purple-500 hover:bg-purple-600 hover:text-white",
 };
 
-const defaultStyles = " m-3 rounded-lg flex gap-1 justify-center items-center ";
-
-const sizeStyle: sizeType = {
-  sm: "py-1 px-2",
-  md: "py-2 px-5",
-  lg: "py-3 px-6",
+const sizeClass = {
+  sm: "px-2 py-1 text-sm ",
+  md: "px-5 py-2",
+  lg: "px-9 py-3",
 };
 
-export const Button = (props: ButtonProps) => {
+const defaultClass =
+  " rounded-lg m-2 mt-0 font-normal flex gap-2 items-center justify-center cursor-pointer transition-all duration-100 ease-in-out";
+
+const Button = (props: PropTypes) => {
   return (
     <button
-      className={`${variantStyles[props.variant]} ${defaultStyles} ${
-        sizeStyle[props.size]
-      } `}
+      onClick={props.onClick}
+      className={`${variantClass[props.variant]} ${
+        sizeClass[props.size ?? "md"]
+      } ${defaultClass} `}
     >
-      {props.startIcon} {props.text} {props.endIcon}
+      {props.startIcon} {props.text}
     </button>
   );
 };
+
+export default Button;

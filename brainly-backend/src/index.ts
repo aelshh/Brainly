@@ -1,16 +1,16 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { string, z } from "zod";
+import { z } from "zod";
 import { contentModel, linkModel, userModel } from "./db";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import { preProcessFile } from "typescript";
 import { userAuthorization } from "./Middleware";
-import { hash } from "crypto";
+import cors from "cors";
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET ?? "";
 app.use(express.json());
+app.use(cors());
 
 app.post("/api/v1/signup", async (req, res) => {
   const requiredBody = z.object({
@@ -40,7 +40,7 @@ app.post("/api/v1/signup", async (req, res) => {
     }
   } else {
     res.status(401).json({
-      error: "Invalid credentials",
+      error: "Invalid Input",
     });
   }
 });
@@ -97,11 +97,14 @@ app.post("/api/v1/signin", async (req, res) => {
   }
 });
 app.post("/api/v1/content", userAuthorization, async (req, res) => {
-  const { title, link } = req.body;
+  const { title, link, type } = req.body;
+  console.log("Received body:", req.body);
+
   try {
     await contentModel.create({
       title,
       link,
+      type,
       userId: req.userId,
     });
     res.json({

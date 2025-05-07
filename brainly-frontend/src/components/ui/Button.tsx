@@ -6,12 +6,13 @@ interface PropTypes {
   onClick?: () => void;
   size?: "sm" | "md" | "lg";
   startIcon?: ReactElement;
+  loading?: boolean;
+  hover?: boolean;
 }
 
 const variantClass = {
-  Primary: "bg-purple-600 text-white hover:bg-purple-300 hover:text-purple-500",
-  Secondary:
-    "bg-purple-300 text-purple-500 hover:bg-purple-600 hover:text-white",
+  Primary: `bg-purple-600 text-white  hover:bg-purple-300 hover:text-purple-500`,
+  Secondary: `bg-purple-300 text-purple-500 hover:bg-purple-600 hover:text-white`,
 };
 
 const sizeClass = {
@@ -29,9 +30,9 @@ const Button = (props: PropTypes) => {
       onClick={props.onClick}
       className={`${variantClass[props.variant]} ${
         sizeClass[props.size ?? "md"]
-      } ${defaultClass} `}
+      } ${defaultClass}  `}
     >
-      {props.startIcon} {props.text}
+      {props.startIcon} {props.loading ? "Loading..." : props.text}
     </button>
   );
 };
